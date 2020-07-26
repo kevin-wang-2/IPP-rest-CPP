@@ -26,8 +26,11 @@ void SocketServer<MsgLoop>::listen(int port) {
     sckServer.listen();
 }
 
+#include <iostream>
+
 template <class MsgLoop>
 void SocketServer<MsgLoop>::serve_forever(bool async) {
+    std::cout << "Serving ..." << std::endl;
     if(async) {
         thMsgLoop = new ::std::thread(MsgLoop(*this));
         thAccLoop = new ::std::thread(accLoop(*this));

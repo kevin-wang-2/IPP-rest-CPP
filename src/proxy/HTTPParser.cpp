@@ -16,6 +16,8 @@ string capitalize(const string & s) {
 
 ///// 解释器 /////
 
+typedef void (*processor_t)(const string&, HTTPHeader_t&);
+
 /**
  * 处理HTTP头
  * @param input HTTP头信息
@@ -31,15 +33,32 @@ HTTPHeader_t HTTPParser::parseHeader(const string &input) {
     parseHead(head, header);
 
     // 2. 逐行处理
+    cout << ">>>inline" << endl;
     while(!iss.eof()) {
         string line;
         getline(iss, line);
-        if(line.empty()) { // 后面开启报文体
+        if(line.length() <= 1) { // 后面开启报文体
             break;
         } else { // 仍在报文头, 进行分析
-            // TODO: 分析报文头
+            unsigned long pos;
+            if((pos = line.find(": ")) == string::npos) throw InvalidHeader();
+            else {
+                string key = line.substr(0, pos);
+                string value = line.substr(pos + 2, line.length());
+
+                // 处理分歧
+                // TODO: 添加对于更多头信息的分析
+                const map<string, processor_t> mFun = {
+                        {"Host", parseHost},
+                        {"Connection", parseConnection},
+                        {"UA", parseUA}
+                };
+                map<string, processor_t>::const_iterator itFun;
+                if((itFun = mFun.find(key)) != mFun.end()) (*itFun).second(value, header);
+            }
         }
     }
+    cout << "<<<inline" << endl;
 
     if(!iss.eof()) {
         header.body = iss.str();
@@ -83,4 +102,53 @@ void HTTPParser::parseHead(const std::string& head, HTTPHeader_t &result) {
     map<string, HTTPVersion_t>::const_iterator itVersion;
     if((itVersion = mVersion.find(capitalize(sVersion))) != mVersion.end()) result.version = (*itVersion).second;
     else result.version = HTTP_1_1;
+}
+
+/**
+ * 处理HTTP头的Host信息
+ * @param host
+ * @param result
+ */
+void HTTPParser::parseHost(const std::string &host, HTTPHeader_t &result) {
+    istringstream iss(host);
+
+    string s[4];
+    getline(iss, s[0], '.');
+    getline(iss, s[1], '.');
+    getline(iss, s[2], '.');
+    getline(iss, s[3], ':');
+
+    if(s[0].empty() || s[1].empty() || s[2].empty() || s[3].empty()) return; // 非法的Host，但是不影响大局
+
+    result.host.IP[0] = stoi(s[0], nullptr, 10);
+    result.host.IP[1] = stoi(s[1], nullptr, 10);
+    result.host.IP[2] = stoi(s[2], nullptr, 10);
+    result.host.IP[3] = stoi(s[3], nullptr, 10);
+
+    unsigned long pos = host.find(':');
+
+    if(pos == string::npos) { // 没有":", 默认端口为80
+        result.host.port = 80;
+    } else {
+        result.host.port = stoi(host.substr(pos + 1, host.length() - pos - 1), nullptr, 10);
+    }
+}
+
+/**
+ * 处理HTTP头的Connection
+ * @param host
+ * @param result
+ */
+void HTTPParser::parseConnection(const std::string &host, HTTPHeader_t &result) {
+    result.keepAlive = (host.find("keep-alive") != string::npos);
+}
+
+/**
+ * 处理HTTP头的useragent
+ * TODO: 拆分Useragent
+ * @param UA
+ * @param result
+ */
+void HTTPParser::parseUA(const std::string &UA, HTTPHeader_t &result) {
+    result.UA = UA;
 }

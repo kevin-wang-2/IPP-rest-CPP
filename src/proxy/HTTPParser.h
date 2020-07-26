@@ -22,13 +22,13 @@ enum HTTPVersion_t {
 
 // TODO: 完善其它头信息
 struct HTTPHeader_t {
-    HTTPMethod_t method;
-    std::string path;
-    HTTPVersion_t version;
-    IP host;
-    bool keepAlive;
-    std::vector<std::string> UA;
-    std::string body;
+    HTTPMethod_t method = GET;
+    std::string path = "";
+    HTTPVersion_t version = HTTP_1_1;
+    IP host = {{0, 0, 0, 0}, 80};
+    bool keepAlive = true;
+    std::string UA;
+    std::string body = "";
 };
 
 ///// HTTP解释器 /////
@@ -37,6 +37,13 @@ namespace HTTPParser {
     HTTPHeader_t parseHeader(const std::string& input);
 
     void parseHead(const std::string& head, HTTPHeader_t& result);
+
+    void parseHost(const std::string& host, HTTPHeader_t& result);
+
+    void parseConnection(const std::string& host, HTTPHeader_t& result);
+
+    void parseUA(const std::string& UA, HTTPHeader_t& result);
+
 }
 
 ///// HTTP解释器异常 /////
