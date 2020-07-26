@@ -1,0 +1,27 @@
+cmake_minimum_required(VERSION 3.10)
+project(CPP_REST)
+
+set(CMAKE_CXX_STANDARD 14)
+
+IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+    set(CMAKE_CXX_FLAGS "-lpthread -Werror -Wall -lrt")
+    MESSAGE(STATUS "current platform: Linux ")
+ELSEIF (WIN32)
+    set(CMAKE_CXX_FLAGS "-lpthread -lws2_32 -lwsock32 -Werror -Wall")
+    MESSAGE(STATUS "current platform: Windows ")
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+
+add_executable(CPP_REST src/main.cpp # 主入口点
+        src/network/defaultMsgLoop.cpp src/network/LinuxSocketObject.cpp src/network/WindowsSocketObject.cpp # 网络层
+        src/proxy/HTTPProxyHandler.cpp  src/proxy/HTTPParser.cpp # 协议层
+        )
+
+
+find_package(Threads)
+target_link_libraries (CPP_REST ${CMAKE_THREAD_LIBS_INIT})
+
+if (WIN32)
+    find_library(WSOCK32_LIBRARY wsock32)
+    find_library(WS2_32_LIBRARY ws2_32)
+    target_link_libraries(CPP_REST wsock32 ws2_32)
+ENDIF (WIN32)
