@@ -1,11 +1,16 @@
 #include "router/Router.h"
+#include "router/HTMLRouter.h"
 
 int main() {
     HTTPServer server;
 
     Router& router = Router::getRouter();
 
-    router.use(std::make_shared<FunctionalRouterCallable>(FunctionalRouterCallable([](IHTTPRequest &req, IHTTPResponse &res) {
+    router.use(createHTMLRouter<GET>("/test", [](IHTTPRequest &req, IHTTPResponse &res) {
+        res.end("Capture OK");
+        return true;
+    }))
+    .use(std::make_shared<FunctionalRouterCallable>(FunctionalRouterCallable([](IHTTPRequest &req, IHTTPResponse &res) {
         std::cout << "Client "
                   << req.request.header.client.IP[0]
                   << "."

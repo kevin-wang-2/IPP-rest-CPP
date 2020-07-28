@@ -14,8 +14,9 @@ ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 add_executable(CPP_REST src/main.cpp # 主入口点
         src/network/defaultMsgLoop.cpp src/network/LinuxSocketObject.cpp src/network/WindowsSocketObject.cpp # 网络层
         src/proxy/HTTPProxyHandler.cpp  src/proxy/HTTPParser.cpp # 协议层
-        src/router/Router.cpp # 路由、
-        src/router/RouterCallable.cpp src/router/RouterCallable.h)
+        src/router/Router.cpp src/router/RouterCallable.cpp src/router/HTMLRouter.hpp # 路由
+        src/router/IHTTPRequest.cpp src/router/IHTTPResponse.cpp # 请求与响应
+        )
 
 
 find_package(Threads)
