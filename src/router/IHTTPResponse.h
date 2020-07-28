@@ -22,9 +22,10 @@ public:
 
     void status(int status) { response.header.status = status; }
 
-    void write(const std::string &s) {
+    IHTTPResponse& write(const std::string &s) {
         validate();
         response.body += s;
+        return *this;
     }
 
     void end(const std::string &s = "") {

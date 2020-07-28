@@ -1,6 +1,7 @@
 #include "HTTPParser.h"
 #include <sstream>
 #include <regex>
+#include "../utils/URL.hpp"
 
 using namespace std;
 
@@ -77,6 +78,7 @@ void HTTPParser::parseHead(const std::string& head, HTTPRequestHeader_t &result)
 
     string sMethod, sVersion;
     issHead >> sMethod >> result.path >> sVersion;
+    result.path=UrlDecode(result.path);
     if(sMethod.empty() || result.path.empty() || sVersion.empty()) throw HTTPException(400);
 
     /** 处理Method **/

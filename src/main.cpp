@@ -7,6 +7,10 @@ int main() {
     Router& router = Router::getRouter();
 
     router.use(createHTMLRouter<GET>("/test", [](IHTTPRequest &req, IHTTPResponse &res) {
+        if(!req.params.empty())
+            res.write("Param:")
+            .write(req.params[0])
+            .write("<br>");
         res.end("Capture OK");
         return true;
     }))
