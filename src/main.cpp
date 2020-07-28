@@ -1,5 +1,5 @@
 #include "network/SocketServer.h"
-#include "proxy/Router.h"
+#include "router/Router.h"
 
 int main() {
     SocketServer<proxyMsgLoop<HTTPProxyHandler>> server;

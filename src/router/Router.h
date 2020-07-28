@@ -3,8 +3,8 @@
 
 #include <deque>
 #include <memory>
-#include "HTTPProxyHandler.h"
-#include "../router/RouterCallable.h"
+#include "../proxy/HTTPProxyHandler.h"
+#include "RouterCallable.h"
 
 class Router {
     std::deque<std::shared_ptr<RouterCallable>> dqCallable {};
