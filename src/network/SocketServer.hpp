@@ -24,19 +24,21 @@ template<class MsgLoop>
 void SocketServer<MsgLoop>::listen(int port) {
     sckServer.bind(port);
     sckServer.listen();
+    _port = port;
 }
 
 #include <iostream>
 
 template <class MsgLoop>
 void SocketServer<MsgLoop>::serve_forever(bool async) {
-    std::cout << "Serving ..." << std::endl;
-    if(async) {
-        thMsgLoop = new ::std::thread(MsgLoop(*this));
-        thAccLoop = new ::std::thread(accLoop(*this));
-    } else {
-        thAccLoop = new ::std::thread(accLoop(*this));
-        MsgLoop(*this)();
+    std::cout << "Serving at" << _port << " ..." << std::endl;
+    thMsgLoop = new ::std::thread(MsgLoop(*this));
+    thAccLoop = new ::std::thread(accLoop(*this));
+    if(!async) {
+        std::cout << "Press enter to exit" << std::endl;
+        getchar();
+        terminate = true;
+        sckServer.close();
     }
 }
 

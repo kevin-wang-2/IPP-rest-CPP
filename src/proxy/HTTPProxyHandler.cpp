@@ -14,7 +14,7 @@ bool HTTPProxyHandler::validate(const string &input) {
 
 std::string HTTPProxyHandler::parse(std::string input, IP ip) {
     // DEBUG 用, 显示完整请求
-    cout << input << endl;
+    // cout << input << endl;
 
     HTTPRequest_t req;
 
@@ -44,7 +44,7 @@ std::string HTTPProxyHandler::parse(std::string input, IP ip) {
     strftime(szDT, 128,"%a, %d %b %Y %H:%M:%S GMT", newtime);
 
     ostringstream oss;
-    oss << "HTTP/1.1 200 OK\r\nServer: 123\r\nDate:"
+    oss << "HTTP/1.1 " << res.header.status << " " << (HTTPReturnCode.find(res.header.status)->second) << "\r\nServer: IPP_REST_SERVER\r\nDate:"
         << szDT
         << "\r\nAccept-Ranges: bytes\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: "
         << res.body.length()

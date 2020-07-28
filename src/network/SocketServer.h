@@ -29,6 +29,8 @@ protected:
 
     bool terminate = false;
 
+    int _port;
+
     class accLoop {
         SocketServer<MsgLoop> &parent;
     public:
