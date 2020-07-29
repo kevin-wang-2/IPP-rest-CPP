@@ -1,6 +1,9 @@
 #include "StaticResource.h"
 #include <fstream>
+
 #include <sys/stat.h>
+#include <regex>
+
 
 using namespace std;
 
@@ -19,10 +22,15 @@ void StaticResource::run(IHTTPRequest &req, IHTTPResponse &res, std::function<vo
         ifstream ifs;
 
         struct stat s_buf {};
+#ifdef WIN32
+        regex reg("(/)+");
+
+        fn = regex_replace(fn, reg, "\\");
+#endif
         stat(fn.c_str(), &s_buf);
 
         if(!S_ISDIR(s_buf.st_mode)) {
-            ifs.open(fn);
+            ifs.open(fn, ios::binary);
         } else {
             fn = fn + "/" + "index.html";
             ifs.open(fn);

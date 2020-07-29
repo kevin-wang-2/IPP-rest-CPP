@@ -4,9 +4,7 @@
 #include <memory>
 #include "CPPLogger.h"
 
-#ifdef LINUX
 #include <sys/time.h>
-#endif
 
 using namespace std;
 
@@ -20,13 +18,11 @@ static string getTime() {
     newtime = gmtime(&ltime);
     strftime(szDT, 128,"%d %b %Y %H:%M:%S.", newtime);
 
-#ifdef LINUX
     struct timeval tv {};
     struct timezone tz {};
     gettimeofday(&tv, &tz);
 
     return string(szDT) + to_string(tv.tv_usec);
-#endif
 }
 
 ///// LOGGER 单例 /////
