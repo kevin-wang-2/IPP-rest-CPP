@@ -1,9 +1,4 @@
-#ifndef CPP_REST_URL_HPP
-#define CPP_REST_URL_HPP
-
-#include <string>
-#include <cassert>
-
+#include "URL.h"
 
 unsigned char ToHex(unsigned char x)
 {
@@ -66,6 +61,3 @@ std::string UrlDecode(const std::string& str) {
     }
     return strTemp;
 }
-
-
-#endif //CPP_REST_URL_HPP

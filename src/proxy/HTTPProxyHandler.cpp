@@ -4,6 +4,9 @@
 #include <sstream>
 #include <ctime>
 
+#include "../../lib/CPPLogger/CPPLogger.h"
+static CPPLogger& logger = CPPLogger::getLogger("server");
+
 using namespace std;
 
 HTTPProxyHandler::HTTPProxyHandler() = default;
@@ -13,13 +16,31 @@ bool HTTPProxyHandler::validate(const string &input) {
 }
 
 std::string HTTPProxyHandler::parse(std::string input, IP ip) {
-    // DEBUG 用, 显示完整请求
-    // cout << input << endl;
+    logger.enter("Handle HTTP Proxy");
 
     HTTPRequest_t req;
 
     // 1. 解析HTTP请求头
-    req.header = HTTPParser::parseHeader(input);
+    try {
+        req.header = HTTPParser::parseHeader(input);
+    } catch(HTTPException& e) {
+        logger(WARN) << "Invalid HTTP Header" << endl;
+
+        // TODO: 用C++时间重写时间格式化
+        char szDT[128];
+        struct tm *newtime;
+        long ltime;
+        time(&ltime);
+        newtime = gmtime(&ltime);
+        strftime(szDT, 128,"%a, %d %b %Y %H:%M:%S GMT", newtime);
+
+        ostringstream oss;
+        oss << "HTTP/1.1 " << e.code << " " << (HTTPReturnCode.find(e.code)->second) << "\r\nServer: IPP_REST_SERVER\r\nDate:"
+            << szDT;
+
+        logger.exit();
+        return oss.str();
+    }
     req.header.client = ip;
 
     // 2. 解析请求体
@@ -51,5 +72,6 @@ std::string HTTPProxyHandler::parse(std::string input, IP ip) {
         << "\r\nConnection: keep-alive\r\n\r\n"
         << res.body;
 
+    logger.exit();
     return oss.str();
 }

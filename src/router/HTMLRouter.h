@@ -12,6 +12,8 @@ public:
     HTMLRouter(std::string path, const std::function<bool(IHTTPRequest &, IHTTPResponse &)>& fun) : FunctionalRouterCallable(fun), _path(std::move(path)) {}
 
     void run(IHTTPRequest &req, IHTTPResponse &res, std::function<void()> next) override;
+
+    const char* getIdentity() override { return "HTML"; }
 };
 
 ///// 辅助函数，用于减少一大堆关于模板的代码 /////

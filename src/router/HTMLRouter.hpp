@@ -15,6 +15,6 @@ void HTMLRouter<method>::run(IHTTPRequest &req, IHTTPResponse &res, std::functio
             req.params = vector<string>(sregex_token_iterator(subPath.begin(), subPath.end(), ws_re, -1), sregex_token_iterator());
         }
 
-        FunctionalRouterCallable::run(req, res, next);
+        if(!fun(req, res)) next();
     }
 }

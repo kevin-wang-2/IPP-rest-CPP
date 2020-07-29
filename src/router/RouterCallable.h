@@ -19,6 +19,10 @@ public:
     bool finish() { return isFinished; };
 
     virtual void run(IHTTPRequest &req, IHTTPResponse &res, std::function<void()>) = 0;
+
+    virtual const char* getIdentity() { return ""; }
+
+    void reset() { isFinished = true; }
 };
 
 ///// 简单函数路由 /////
@@ -30,6 +34,8 @@ public:
     explicit FunctionalRouterCallable(std::function<bool(IHTTPRequest &, IHTTPResponse &)> _fun) : fun(std::move(_fun)) {}
 
     void run(IHTTPRequest &req, IHTTPResponse &res, std::function<void()> next) override { if(!fun(req, res)) next(); };
+
+    const char* getIdentity() override { return "Functional"; }
 };
 
 

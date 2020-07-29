@@ -5,6 +5,9 @@
 #include "../proxy/HTTPProxyHandler.h"
 
 class RequestEnd : public std::exception {
+    const char* what() const noexcept override{
+        return "Request has been ended";
+    }
 };
 
 class Router;

@@ -1,6 +1,8 @@
 #include <regex>
 #include "IHTTPRequest.h"
 
+#include "../utils/URL.h"
+
 using namespace std;
 
 IHTTPRequest::IHTTPRequest(const HTTPRequest_t &req) : request(req) {
@@ -31,7 +33,7 @@ IHTTPRequest::IHTTPRequest(const HTTPRequest_t &req) : request(req) {
         for(auto &item : queryGroup) {
             unsigned long eq;
             if((eq = item.find('=')) != string::npos) {
-                parsedBody[item.substr(0, eq)] = item.substr(eq + 1, item.length());
+                parsedBody[item.substr(0, eq)] = UrlDecode(item.substr(eq + 1, item.length()));
             } else {
                 parsedBody[item] = "true";
             }
