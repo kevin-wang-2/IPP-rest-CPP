@@ -15,6 +15,14 @@ string capitalize(const string & s) {
     return ret;
 }
 
+string decapitalize(const string & s) {
+    string ret = s;
+    for(auto &i : ret) {
+        if((i <= 'Z') && (i >= 'A')) i -= ('A' - 'a');
+    }
+    return ret;
+}
+
 ///// 解释器 /////
 
 typedef void (*processor_t)(const string&, HTTPRequestHeader_t&);
@@ -189,21 +197,9 @@ void HTTPParser::parseMIME(const std::string &MIMES, HTTPRequestHeader_t &result
             auto pos = item.find('/'); // 分隔符位置
 
             // 处理MIME主类型
-            const map<string, MIMEMainType_t> mMainType = {
-                    {"TEXT", MIME_TEXT},
-                    {"MULTIPART", MIME_MULTIPART},
-                    {"APPLICATION", MIME_APPLICATION},
-                    {"MESSAGE", MIME_MESSAGE},
-                    {"IMAGE", MIME_IMAGE},
-                    {"AUDIO", MIME_AUDIO},
-                    {"VIDEO", MIME_VIDEO},
-                    {"DRAWING", MIME_DRAWING},
-                    {"JAVA", MIME_JAVA},
-                    {"MODEL", MIME_MODEL}
-            };
 
             map<string, MIMEMainType_t>::const_iterator itMainItem;
-            if((itMainItem = mMainType.find(capitalize(item.substr(0, pos)))) != mMainType.end()) mCur.mainType = itMainItem->second;
+            if((itMainItem = mMIMEMainType.find(decapitalize(item.substr(0, pos)))) != mMIMEMainType.end()) mCur.mainType = itMainItem->second;
 
             mCur.subType = item.substr(pos + 1, item.find('\r') - pos - 1);
         } else { // 有附加数据
@@ -213,21 +209,8 @@ void HTTPParser::parseMIME(const std::string &MIMES, HTTPRequestHeader_t &result
             auto pos = params[0].find('/'); // 分隔符位置
 
             // 处理MIME主类型
-            const map<string, MIMEMainType_t> mMainType = {
-                    {"TEXT", MIME_TEXT},
-                    {"MULTIPART", MIME_MULTIPART},
-                    {"APPLICATION", MIME_APPLICATION},
-                    {"MESSAGE", MIME_MESSAGE},
-                    {"IMAGE", MIME_IMAGE},
-                    {"AUDIO", MIME_AUDIO},
-                    {"VIDEO", MIME_VIDEO},
-                    {"DRAWING", MIME_DRAWING},
-                    {"JAVA", MIME_JAVA},
-                    {"MODEL", MIME_MODEL}
-            };
-
             map<string, MIMEMainType_t>::const_iterator itMainItem;
-            if((itMainItem = mMainType.find(capitalize(params[0].substr(0, pos)))) != mMainType.end()) mCur.mainType = itMainItem->second;
+            if((itMainItem = mMIMEMainType.find(decapitalize(params[0].substr(0, pos)))) != mMIMEMainType.end()) mCur.mainType = itMainItem->second;
 
             mCur.subType = params[0].substr(pos + 1, params[0].find('\r') - pos - 1);
 

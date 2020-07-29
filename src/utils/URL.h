@@ -12,4 +12,6 @@ std::string UrlEncode(const std::string& str);
 
 std::string UrlDecode(const std::string& str);
 
+std::string URLSimplify(const std::string& str);
+
 #endif //CPP_REST_URL_H

@@ -40,7 +40,7 @@ class CPPLogger {
 
     friend CPPLoggerBase;
 public:
-    explicit CPPLogger(const std::string&  _, const std::string& _err) : fn(_), err_fn(_err), ofs(_), err_ofs(_err) {}
+    explicit CPPLogger(const std::string&  _, const std::string& _err) : fn(_), err_fn(_err, std::ios_base::app), ofs(_), err_ofs(_err, std::ios_base::app) {}
 
     CPPLogger(CPPLogger& logger) = delete;
 

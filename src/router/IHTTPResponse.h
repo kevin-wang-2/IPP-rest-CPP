@@ -2,6 +2,8 @@
 #define CPP_REST_IHTTPRESPONSE_H
 
 
+#include <utility>
+
 #include "../proxy/HTTPProxyHandler.h"
 
 class RequestEnd : public std::exception {
@@ -24,6 +26,8 @@ public:
     const HTTPResponse_t &const_response;
 
     void status(int status) { response.header.status = status; }
+
+    void setMIME(MIME_t m) { response.header.contentType = std::move(m); }
 
     IHTTPResponse& write(const std::string &s) {
         validate();

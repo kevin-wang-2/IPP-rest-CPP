@@ -39,9 +39,22 @@ enum MIMEMainType_t {
     MIME_ANY
 };
 
+const std::map<std::string, MIMEMainType_t> mMIMEMainType = {
+        {"text", MIME_TEXT},
+        {"multipart", MIME_MULTIPART},
+        {"application", MIME_APPLICATION},
+        {"message", MIME_MESSAGE},
+        {"image", MIME_IMAGE},
+        {"audio", MIME_AUDIO},
+        {"video", MIME_VIDEO},
+        {"drawing", MIME_DRAWING},
+        {"java", MIME_JAVA},
+        {"model", MIME_MODEL}
+};
+
 struct MIME_t {
-    MIMEMainType_t mainType;
-    std::string subType;
+    MIMEMainType_t mainType = MIME_TEXT;
+    std::string subType = "html";
 };
 
 struct weightedMIME_t {

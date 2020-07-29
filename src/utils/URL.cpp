@@ -1,4 +1,7 @@
 #include "URL.h"
+#include <regex>
+
+using namespace std;
 
 unsigned char ToHex(unsigned char x)
 {
@@ -60,4 +63,13 @@ std::string UrlDecode(const std::string& str) {
         } else strTemp += str[i];
     }
     return strTemp;
+}
+
+string URLSimplify(const string& str) {
+    regex reg("(/)+");
+    string s;
+
+    regex_replace(back_inserter(s), str.begin(), str.end(), reg, "$1");
+
+    return s;
 }

@@ -1,8 +1,9 @@
 #include "HTTPProxyHandler.h"
 #include "../router/Router.h"
 #include <iostream>
-#include <sstream>
 #include <ctime>
+#include <algorithm>
+#include "../utils/stl_helper.h"
 
 #include "../../lib/CPPLogger/CPPLogger.h"
 static CPPLogger& logger = CPPLogger::getLogger("server");
@@ -64,10 +65,18 @@ std::string HTTPProxyHandler::parse(std::string input, IP ip) {
     newtime = gmtime(&ltime);
     strftime(szDT, 128,"%a, %d %b %Y %H:%M:%S GMT", newtime);
 
+    if(res.header.status == 500) {
+        return "HTTP/1.1 500 Internal Server Error\r\n\r\n";
+    }
+
     ostringstream oss;
     oss << "HTTP/1.1 " << res.header.status << " " << (HTTPReturnCode.find(res.header.status)->second) << "\r\nServer: IPP_REST_SERVER\r\nDate:"
         << szDT
-        << "\r\nAccept-Ranges: bytes\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: "
+        << "\r\nAccept-Ranges: bytes\r\nContent-Type: "
+        << find_if(mMIMEMainType.begin(), mMIMEMainType.end(), map_value_finder<string, MIMEMainType_t>(res.header.contentType.mainType))->first
+        << "/"
+        << res.header.contentType.subType
+        << ";charset=utf-8\r\nContent-Length: "
         << res.body.length()
         << "\r\nConnection: keep-alive\r\n\r\n"
         << res.body;

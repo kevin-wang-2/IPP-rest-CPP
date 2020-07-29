@@ -18,7 +18,7 @@ add_executable(CPP_REST src/main.cpp # 主入口点
         src/router/IHTTPRequest.cpp src/router/IHTTPResponse.cpp # 请求与响应
         src/utils/URL.cpp # URL编码相关
         lib/CPPLogger/CPPLogger.cpp # Logger库
-        )
+        src/utils/stl_helper.h src/middleware/StaticResource.cpp src/middleware/StaticResource.h)
 
 
 find_package(Threads)

@@ -9,7 +9,10 @@ class HTMLRouter : public FunctionalRouterCallable {
 protected:
     std::string _path;
 public:
-    HTMLRouter(std::string path, const std::function<bool(IHTTPRequest &, IHTTPResponse &)>& fun) : FunctionalRouterCallable(fun), _path(std::move(path)) {}
+    HTMLRouter(std::string path, const std::function<bool(IHTTPRequest &, IHTTPResponse &)>& fun) : FunctionalRouterCallable(fun) {
+        if(*(path.end() - 1) != '/') _path = path;
+        else _path = path.substr(0, path.length() - 1);
+    }
 
     void run(IHTTPRequest &req, IHTTPResponse &res, std::function<void()> next) override;
 
