@@ -12,8 +12,15 @@ class Router {
 public:
     static Router& getRouter();
 
+
     Router& use(const std::shared_ptr<RouterCallable>& fn) {
         dqCallable.push_back(fn);
+        return *this;
+    }
+
+    template <typename T, typename std::enable_if<std::is_base_of<RouterCallable, T>{}, int>::type = 0>
+    Router& use(T&& fn) {
+        dqCallable.push_back(std::make_shared<T>(fn));
         return *this;
     }
 

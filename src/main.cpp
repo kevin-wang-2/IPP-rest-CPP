@@ -12,7 +12,7 @@ int main() {
     Router& router = Router::getRouter();
 
     router
-    .use(std::make_shared<FunctionalRouterCallable>(FunctionalRouterCallable([](IHTTPRequest &req, IHTTPResponse &res) {
+    .use(FunctionalRouterCallable([](IHTTPRequest &req, IHTTPResponse &res) {
         logger(LOG) << "Client "
                   << to_string(req.request.header.client.IP[0])
                   << "."
@@ -27,8 +27,8 @@ int main() {
                   << req.request.header.path
                   << endl;
         return false;
-    })))
-    .use(make_shared<StaticResource>(StaticResource("static", "")))
+    }))
+    .use(StaticResource("static", ""))
     .use(createHTMLRouter<GET>("/test", [](IHTTPRequest &req, IHTTPResponse &res) {
         if(!req.params.empty())
             res.write("Param:")
@@ -37,12 +37,7 @@ int main() {
         res.end("Capture OK");
         //res.end(); // Cause Error
         return true;
-    }))
-    .use(std::make_shared<FunctionalRouterCallable>(FunctionalRouterCallable([](IHTTPRequest &req, IHTTPResponse &res) {
-        if(req.request.header.path == "/1234") return false;
-        res.end(req.request.header.path);
-        return true;
-    })));
+    }));
 
     server.listen(8000);
 
