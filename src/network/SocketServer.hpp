@@ -31,7 +31,7 @@ void SocketServer<MsgLoop>::listen(int port) {
 
 template <class MsgLoop>
 void SocketServer<MsgLoop>::serve_forever(bool async) {
-    std::cout << "Serving at" << _port << " ..." << std::endl;
+    std::cout << "Serving at " << _port << " ..." << std::endl;
     thMsgLoop = new ::std::thread(MsgLoop(*this));
     thAccLoop = new ::std::thread(accLoop(*this));
     if(!async) {
