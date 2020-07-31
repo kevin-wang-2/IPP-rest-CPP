@@ -29,7 +29,7 @@ int main() {
         return false;
     }))
     .use(StaticResource("static", ""))
-    .use(createHTMLRouter<GET>("/test", [](IHTTPRequest &req, IHTTPResponse &res) {
+    .use(HTMLRouter<GET>("/test", [](IHTTPRequest &req, IHTTPResponse &res) {
         if(!req.params.empty())
             res.write("Param:")
             .write(req.params[0])

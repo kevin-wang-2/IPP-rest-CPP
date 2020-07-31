@@ -12,8 +12,7 @@ class Router {
 public:
     static Router& getRouter();
 
-
-    Router& use(const std::shared_ptr<RouterCallable>& fn) {
+    Router& use(std::shared_ptr<RouterCallable>&& fn) {
         dqCallable.push_back(fn);
         return *this;
     }
