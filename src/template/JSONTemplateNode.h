@@ -34,6 +34,9 @@ public:
     virtual std::shared_ptr<JSONTemplateNode> getCopy() const = 0;
 };
 
+/**
+ * JSON模板中的纯文本
+ */
 class JSONTemplateString : public JSONTemplateNode {
     std::string s;
 public:
@@ -48,5 +51,27 @@ public:
     };
 };
 
+/**
+ * 异常
+ */
+
+class InvalidTemplate : public std::exception {
+public:
+    const char* what() const noexcept override { return "Invalid Template Syntax"; }
+};
+
+class InvalidTemplateVariable : public InvalidTemplate {
+public:
+    const char* what() const noexcept override { return "Invalid Template Variable Syntax"; }
+};
+
+class ArgumentUnassigned : public std::exception {
+    std::string text;
+public:
+    ArgumentUnassigned(const std::string& _) : text(std::string("Argument ") + _ + " Unassigned") {}
+
+    const char* what() const noexcept override { return text.c_str(); }
+
+};
 
 #endif //CPP_REST_JSONTEMPLATENODE_H

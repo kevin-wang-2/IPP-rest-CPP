@@ -7,18 +7,32 @@
 #include <vector>
 #include <memory>
 
+/******
+ * 模板语法
+ * 1. 参数使用"@X"来表示，参数词法正则[a-z,A-Z][a-z,A-Z,0-9,_,.]*
+ * 2. 循环使用()表示
+ * 3. 使用"\"转义
+ *
+ * 例:
+ * {"a": @a}使用a作为参数
+ * {"a": (@f)}根据后续传入f的数量进行循环
+ * {"a": "\@"} 不会进入参数模式
+ *******/
+
 class JSONTemplateRoot : public JSONTemplateNode {
     std::vector<std::shared_ptr<JSONTemplateNode>> child;
 
     explicit JSONTemplateRoot(std::vector<std::shared_ptr<JSONTemplateNode>> _) : child(_) {}
-public:
+
     enum _DFA_STATE_t {
         _append_normal,
         _append_val,
+        _append_val_,
         _append_loop,
         _normal_slash,
         _loop_slash,
     };
+public:
 
     explicit JSONTemplateRoot(const char* s) {
         std::string cur;
@@ -69,7 +83,16 @@ public:
                     break;
                 }
                 case _append_val: {
-                    if((c <= 'z' && c >= 'a') || (c <= 'Z' && c >= 'A') || (c <= '9' && c >= '1') || c == '.' || c == '_') { // 合法变量名
+                    if((c <= 'z' && c >= 'a') || (c <= 'Z' && c >= 'A')) { // 合法变量名
+                        cur += c;
+                        state = _append_val_;
+                    } else { // 结束，重新分析
+                        throw InvalidTemplateVariable();
+                    }
+                    break;
+                }
+                case _append_val_: {
+                    if((c <= 'z' && c >= 'a') || (c <= 'Z' && c >= 'A') || (c <= '9' && c >= '1') || c == '_' || c == '.') { // 合法变量名
                         cur += c;
                     } else { // 结束，重新分析
                         ptr--;
@@ -115,8 +138,8 @@ public:
         }
 
         if(state == _append_normal) child.push_back(std::make_shared<JSONTemplateString>(JSONTemplateString(cur)));
-        else if(state == _append_val) child.push_back(std::make_shared<JSONTemplateVar>(JSONTemplateVar(cur)));
-        else throw;
+        else if(state == _append_val_) child.push_back(std::make_shared<JSONTemplateVar>(JSONTemplateVar(cur)));
+        else throw InvalidTemplate();
     }
 
     std::string concatenate() override {
