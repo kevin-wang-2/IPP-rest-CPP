@@ -7,15 +7,15 @@
 #include <memory>
 
 class JSONTemplateLoop : public JSONTemplateNode {
-    std::vector<std::shared_ptr<JSONTemplateNode>> child;
-    int loopCnt = 0;
+    std::vector<std::shared_ptr<JSONTemplateNode>> templ;
+    std::vector<std::vector<std::shared_ptr<JSONTemplateNode>>> child;
 public:
-    explicit JSONTemplateLoop(std::vector<std::shared_ptr<JSONTemplateNode>> _) : child(std::move(_)) {};
+    explicit JSONTemplateLoop(std::vector<std::shared_ptr<JSONTemplateNode>> _) : templ(std::move(_)) {};
 
     std::string concatenate() override {
         std::string ret;
-        for(int i = 0; i < loopCnt; i++) {
-            for(auto &item : child) {
+        for(auto &subtree : child) {
+            for(auto &item : subtree) {
                 ret += item->concatenate();
             }
         }

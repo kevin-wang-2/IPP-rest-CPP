@@ -3,6 +3,7 @@
 
 #include "JSONTemplateNode.h"
 #include "JSONTemplateLoop.h"
+#include "JSONTemplateVar.h"
 #include <vector>
 #include <memory>
 
@@ -59,7 +60,8 @@ public:
                             cur += c;
                             break;
                         default:
-                            cur += std::to_string('\\') + c;
+                            cur += '\\';
+                            cur += c;
                     }
                     state = _append_normal;
                     break;
@@ -69,6 +71,8 @@ public:
                         cur += c;
                     } else { // 结束，重新分析
                         ptr--;
+                        child.push_back(std::make_shared<JSONTemplateVar>(JSONTemplateVar(cur.c_str())));
+                        cur = "";
                         state = _append_normal;
                     }
                     break;
@@ -80,12 +84,19 @@ public:
                             break;
                         case '(':
                             loopCounter++;
+                            cur += '(';
+                            break;
                         case ')':
                             if(loopCounter == 0) {
                                 JSONTemplateRoot j(cur.c_str());
                                 // 利用已有的root生成loop
                                 child.push_back(std::make_shared<JSONTemplateLoop>(JSONTemplateLoop(j.child)));
-                            } else loopCounter--;
+                                cur = "";
+                                state = _append_normal;
+                            } else {
+                                cur += ')';
+                                loopCounter--;
+                            }
                             break;
                         default:
                             cur += c;
@@ -93,12 +104,16 @@ public:
                     break;
                 }
                 case _loop_slash: {
-                    s += '\\';
-                    s += 'c';
+                    cur += '\\';
+                    cur += c;
+                    state = _append_loop;
                     break;
                 }
             }
         }
+
+        if(state != _append_normal) throw;
+        child.push_back(std::make_shared<JSONTemplateString>(JSONTemplateString(cur)));
     }
 
     std::string concatenate() override {
