@@ -49,7 +49,7 @@
  * {"a": "\@"}  不会进入参数模式
 
 使用样例：
-~~~~~~C++
+~~~~~~cpp
 #include "../../src/template/JSONTemplateRoot.h"
 #include <iostream>
 
