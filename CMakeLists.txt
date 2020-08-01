@@ -20,9 +20,9 @@ add_executable(CPP_REST src/main.cpp # 主入口点
         lib/CPPLogger/CPPLogger.cpp # Logger库
         # 中间件
         src/middleware/StaticResource.cpp
-        src/template/JSONTemplateRenderer.cpp)
+        )
 
-add_executable(JSONTemplateTest  test/JSONTemplate/JSONTemplateTest.cpp src/template/JSONTemplateRenderer.h src/template/JSONTemplateNode.h src/template/JSONTemplateRoot.h src/template/JSONTemplateLoop.h src/template/JSONTemplateVar.h)
+add_executable(JSONTemplateTest  test/JSONTemplate/JSONTemplateTest.cpp src/template/JSONTemplateNode.h src/template/JSONTemplateRoot.h src/template/JSONTemplateLoop.h src/template/JSONTemplateVar.h)
 
 
 find_package(Threads)
