@@ -20,44 +20,9 @@ public:
         else throw ArgumentUnassigned(_path);
     }
 
-    void setVal(const std::string& path, int val) override {
+    void setVal(const std::string& path, const JSONAny& val) override {
         if(path == _path) {
-            _val = std::to_string(val);
-            assigned = true;
-        }
-    }
-
-    void setVal(const std::string& path, double val) override {
-        if(path == _path) {
-            _val = std::to_string(val);
-            assigned = true;
-        }
-    }
-
-    void setVal(const std::string& path, bool val) override {
-        if(path == _path) {
-            _val = val ? "true" : "false";
-            assigned = true;
-        }
-    }
-
-    void setVal(const std::string& path, const NULL_t&) override {
-        if(path == _path) {
-            _val = "null";
-            assigned = true;
-        }
-    }
-
-    void setVal(const std::string& path, const char* val) override {
-        if(path == _path) {
-            _val = std::string("\"") + val + "\"";
-            assigned = true;
-        }
-    }
-
-    void setVal(const std::string& path, const std::string& val) override {
-        if(path == _path) {
-            _val = std::string("\"") + val + "\"";
+            _val = val.get();
             assigned = true;
         }
     }

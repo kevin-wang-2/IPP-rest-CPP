@@ -69,16 +69,7 @@ public:
                     break;
                 }
                 case _normal_slash: {
-                    switch(c) {
-                        case '\\':
-                        case '@':
-                        case '(':
-                            cur += c;
-                            break;
-                        default:
-                            cur += '\\';
-                            cur += c;
-                    }
+                    cur += c;
                     state = _append_normal;
                     break;
                 }
@@ -94,6 +85,10 @@ public:
                 case _append_val_: {
                     if((c <= 'z' && c >= 'a') || (c <= 'Z' && c >= 'A') || (c <= '9' && c >= '1') || c == '_' || c == '.') { // 合法变量名
                         cur += c;
+                    } else if(c == '@') {
+                        child.push_back(std::make_shared<JSONTemplateVar>(JSONTemplateVar(cur.c_str())));
+                        cur = "";
+                        state = _append_normal;
                     } else { // 结束，重新分析
                         ptr--;
                         child.push_back(std::make_shared<JSONTemplateVar>(JSONTemplateVar(cur.c_str())));
@@ -150,29 +145,14 @@ public:
         return ret;
     }
 
-    void setVal(const std::string& path, int val) override {
+    void setVal(const std::string& path, const JSONAny& val) override {
         for(auto &item: child) item->setVal(path, val);
     }
 
-    void setVal(const std::string& path, double val) override {
-        for(auto &item: child) item->setVal(path, val);
-    }
-
-    void setVal(const std::string& path, bool val) override {
-        for(auto &item: child) item->setVal(path, val);
-    }
-
-    void setVal(const std::string& path, const NULL_t& val) override {
-        for(auto &item: child) item->setVal(path, val);
-    }
-
-    void setVal(const std::string& path, const char* val) override {
-        for(auto &item: child) item->setVal(path, val);
-    }
-
-    void setVal(const std::string& path, const std::string& val) override {
-        for(auto &item: child) item->setVal(path, val);
-    }
+    void setArr(const std::string& path, std::vector<JSONAny> arr) override {
+        for(auto &item : child)
+            if(item->getIdentity() == LOOP) item->setArr(path, arr);
+    };
 
     const JSONTemplateNodeType getIdentity() override { return ROOT; }
 

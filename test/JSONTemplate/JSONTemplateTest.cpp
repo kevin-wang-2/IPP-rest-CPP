@@ -12,17 +12,15 @@ int main() {
                 "b2": true
             },
         ({
-            "test": @c(@f),
+            "test": "@c(.@f)\",
             "const": false
         },)]
         }
     )");
     j.setVal("num1", 1);
     j.setVal("b1", "hello");
-    j.setVal("c.0", "a");
-    j.setVal("c.1", "b");
-    j.setVal("f.0.0", "f10");
-    j.setVal("f.0.1", "f11");
+    j.setArr("c", {"a", "b"});
+    j.setArr("f.0", {"f10", "f11"});
     j.setVal("f.1.0", "f20");
     cout << j.concatenate() << endl;
 }

@@ -12,12 +12,28 @@ static bool isInt(std::string s) {
     return true;
 }
 
+template <typename T>
+static inline T min(T x, T y) { return (x < y) ? x : y; }
+
 class JSONTemplateLoop : public JSONTemplateNode {
     std::vector<std::shared_ptr<JSONTemplateNode>> templ;
     std::vector<std::vector<std::shared_ptr<JSONTemplateNode>>> child;
 
-    template <typename T>
-    void setValHelper(const std::string& path, T val) {
+    explicit JSONTemplateLoop(std::vector<std::shared_ptr<JSONTemplateNode>> _t, std::vector<std::vector<std::shared_ptr<JSONTemplateNode>>> _c) : templ(_t), child(_c) {};
+public:
+    explicit JSONTemplateLoop(std::vector<std::shared_ptr<JSONTemplateNode>> _) : templ(std::move(_)) {};
+
+    std::string concatenate() override {
+        std::string ret;
+        for(auto &subtree : child) {
+            for(auto &item : subtree) {
+                ret += item->concatenate();
+            }
+        }
+        return ret;
+    }
+
+    void setVal(const std::string& path, const JSONAny& val) override {
         if(path.find('.') != std::string::npos) { // 存在.
             std::string pre = path, post, pg, temp;
             unsigned int index;
@@ -51,42 +67,62 @@ class JSONTemplateLoop : public JSONTemplateNode {
         }
     }
 
-    explicit JSONTemplateLoop(std::vector<std::shared_ptr<JSONTemplateNode>> _t, std::vector<std::vector<std::shared_ptr<JSONTemplateNode>>> _c) : templ(_t), child(_c) {};
-public:
-    explicit JSONTemplateLoop(std::vector<std::shared_ptr<JSONTemplateNode>> _) : templ(std::move(_)) {};
+    void setArr(const std::string& path, std::vector<JSONAny> arr) override {
+        // 1. 判断是否为更高层级
+        if(path.find('.') != std::string::npos) {
+            if(isInt(path.substr(path.find_last_of('.') + 1, std::string::npos))) {
+                std::string pre = path, post, pg, temp;
+                unsigned int index;
+                while(true) {
+                    auto pos = pre.find_last_of('.');
+                    post = pre.substr(pos + 1, std::string::npos);
+                    pre = pre.substr(0, pos);
 
-    std::string concatenate() override {
-        std::string ret;
-        for(auto &subtree : child) {
-            for(auto &item : subtree) {
-                ret += item->concatenate();
+                    long subpos = pre.find_last_of('.');
+                    if((unsigned long)subpos == std::string::npos) subpos = -1;
+                    temp = pre.substr(subpos + 1, std::string::npos);
+
+                    if(!isInt(temp)) {
+                        index = std::stoi(post);
+                        pg = pre.substr(0, subpos) + pg;
+                        break;
+                    } else {
+                        pg = "." + post + pg;
+                    }
+                }
+
+                while(index >= child.size()) {
+                    std::vector<std::shared_ptr<JSONTemplateNode>> app;
+                    for(auto &item : templ) {
+                        app.push_back(item->getCopy());
+                    }
+                    child.push_back(app);
+                }
+
+                for(auto &item : child[index])
+                    if(item->getIdentity() == LOOP) item->setArr(pg, arr);
+                return;
             }
         }
-        return ret;
-    }
 
-    void setVal(const std::string& path, int val) override {
-        setValHelper(path, val);
-    }
+        // 2. 填充数据
+        for(unsigned int i = 0; i < min(child.size(), arr.size()); i++) {
+            for(auto &item : child[i]) item->setVal(path, arr[i]);
+        }
 
-    void setVal(const std::string& path, double val) override {
-        setValHelper(path, val);
-    }
-
-    void setVal(const std::string& path, bool val) override {
-        setValHelper(path, val);
-    }
-
-    void setVal(const std::string& path, const NULL_t& val) override {
-        setValHelper(path, val);
-    }
-
-    void setVal(const std::string& path, const char* val) override {
-        setValHelper(path, val);
-    }
-
-    void setVal(const std::string& path, const std::string& val) override {
-        setValHelper(path, val);
+        // 3. 增添子项
+        if(arr.size() > child.size()) {
+            unsigned int boundary = child.size();
+            for(unsigned int i = boundary; i < arr.size(); i++) {
+                std::vector<std::shared_ptr<JSONTemplateNode>> app;
+                for (auto &item : templ) {
+                    auto sub = item->getCopy();
+                    sub->setVal(path, arr[i]);
+                    app.push_back(sub);
+                }
+                child.push_back(app);
+            }
+        }
     }
 
     const JSONTemplateNodeType getIdentity() override { return LOOP; }

@@ -4,6 +4,7 @@
 #include <string>
 #include <utility>
 #include <memory>
+#include <vector>
 
 enum JSONTemplateNodeType {
     ROOT,
@@ -12,7 +13,20 @@ enum JSONTemplateNodeType {
     LOOP
 };
 
-class NULL_t {};
+class NULL_t {} JSONNULL;
+
+class JSONAny {
+    std::string val;
+public:
+    JSONAny(int _val) : val(std::to_string(_val)) {}
+    JSONAny(double _val) : val(std::to_string(_val)) {}
+    JSONAny(bool _val) : val(_val? "true" : "false") {}
+    JSONAny(const NULL_t& _val) : val("null") {}
+    JSONAny(const char* _val) : val(_val) {}
+    JSONAny(const std::string& _val) : val(_val) {}
+
+    const std::string& get() const { return val; };
+};
 
 /**
  * JSON模板节点虚基类
@@ -22,12 +36,8 @@ public:
     virtual std::string concatenate() = 0; // 拼接旗下节点
 
     ///// 设置旗下节点以及自己的参数 /////
-    virtual void setVal(const std::string& path, int val) {};
-    virtual void setVal(const std::string& path, double val) {};
-    virtual void setVal(const std::string& path, bool val) {};
-    virtual void setVal(const std::string& path, const NULL_t& val) {};
-    virtual void setVal(const std::string& path, const char* val) {};
-    virtual void setVal(const std::string& path, const std::string& val) {};
+    virtual void setVal(const std::string& path, const JSONAny& val) {};
+    virtual void setArr(const std::string& path, std::vector<JSONAny> arr) {};
 
     virtual const JSONTemplateNodeType getIdentity() = 0;
 
