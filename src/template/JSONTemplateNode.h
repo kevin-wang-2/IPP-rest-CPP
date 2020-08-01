@@ -3,6 +3,14 @@
 
 #include <string>
 #include <utility>
+#include <memory>
+
+enum JSONTemplateNodeType {
+    ROOT,
+    VAR,
+    STR,
+    LOOP
+};
 
 class NULL_t {};
 
@@ -20,6 +28,10 @@ public:
     virtual void setVal(const std::string& path, const NULL_t& val) {};
     virtual void setVal(const std::string& path, const char* val) {};
     virtual void setVal(const std::string& path, const std::string& val) {};
+
+    virtual const JSONTemplateNodeType getIdentity() = 0;
+
+    virtual std::shared_ptr<JSONTemplateNode> getCopy() const = 0;
 };
 
 class JSONTemplateString : public JSONTemplateNode {
@@ -28,6 +40,12 @@ public:
     JSONTemplateString(std::string _) : s(std::move(_)) {}
 
     std::string concatenate() override { return s; }
+
+    const JSONTemplateNodeType getIdentity() override { return STR; }
+
+    std::shared_ptr<JSONTemplateNode> getCopy() const override {
+        return std::make_shared<JSONTemplateString>(JSONTemplateString(s));
+    };
 };
 
 

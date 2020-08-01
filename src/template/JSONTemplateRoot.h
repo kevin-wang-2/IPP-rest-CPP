@@ -9,6 +9,8 @@
 
 class JSONTemplateRoot : public JSONTemplateNode {
     std::vector<std::shared_ptr<JSONTemplateNode>> child;
+
+    explicit JSONTemplateRoot(std::vector<std::shared_ptr<JSONTemplateNode>> _) : child(_) {}
 public:
     enum _DFA_STATE_t {
         _append_normal,
@@ -112,8 +114,9 @@ public:
             }
         }
 
-        if(state != _append_normal) throw;
-        child.push_back(std::make_shared<JSONTemplateString>(JSONTemplateString(cur)));
+        if(state == _append_normal) child.push_back(std::make_shared<JSONTemplateString>(JSONTemplateString(cur)));
+        else if(state == _append_val) child.push_back(std::make_shared<JSONTemplateVar>(JSONTemplateVar(cur)));
+        else throw;
     }
 
     std::string concatenate() override {
@@ -123,6 +126,39 @@ public:
         }
         return ret;
     }
+
+    void setVal(const std::string& path, int val) override {
+        for(auto &item: child) item->setVal(path, val);
+    }
+
+    void setVal(const std::string& path, double val) override {
+        for(auto &item: child) item->setVal(path, val);
+    }
+
+    void setVal(const std::string& path, bool val) override {
+        for(auto &item: child) item->setVal(path, val);
+    }
+
+    void setVal(const std::string& path, const NULL_t& val) override {
+        for(auto &item: child) item->setVal(path, val);
+    }
+
+    void setVal(const std::string& path, const char* val) override {
+        for(auto &item: child) item->setVal(path, val);
+    }
+
+    void setVal(const std::string& path, const std::string& val) override {
+        for(auto &item: child) item->setVal(path, val);
+    }
+
+    const JSONTemplateNodeType getIdentity() override { return ROOT; }
+
+    std::shared_ptr<JSONTemplateNode> getCopy() const override {
+        std::vector<std::shared_ptr<JSONTemplateNode>> new_child;
+        for(auto &item : child) new_child.push_back(item->getCopy());
+
+        return std::make_shared<JSONTemplateRoot>(JSONTemplateRoot(new_child));
+    };
 };
 
 #endif //CPP_REST_JSONTEMPLATEROOT_H
