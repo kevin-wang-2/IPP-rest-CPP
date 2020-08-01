@@ -34,6 +34,49 @@
 
 * 静态路由中间件独立于其它中间件，因为不需要提供处理函数。它会直接反应本地静态路径至目标路径，并自动设置MIME类型。
 
+### JSON模板渲染功能
+尽管tx爸爸设计了性能非常nb的rapidJSON插件，在C++里使用依然不是很方便(因为C++的强类型属性)，所以独立于rapidjson写了一个JSON模板生成器。
+
+
+####模板语法
+ 1. 参数使用"@X"来表示，参数词法正则[a-z,A-Z][a-z,A-Z,0-9,_,.]*
+ 2. 循环使用()表示
+ 3. 使用"\\"转义
+ 
+ 例:
+ * {"a": @a}  使用a作为参数
+ * {"a": (@f)}  根据后续传入f的数量进行循环
+ * {"a": "\@"}  不会进入参数模式
+
+使用样例：
+~~~~~~
+#include "../../src/template/JSONTemplateRoot.h"
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    JSONTemplateRoot j(R"(
+        {
+            "a": @num1,
+            "b": [{
+                "b1": @b1,
+                "b2": true
+            },
+        ({
+            "test": "@c(.@f)\",
+            "const": false
+        },)]
+        }
+    )");
+    j.setVal("num1", 1);
+    j.setVal("b1", "hello");
+    j.setArr("c", {"a", "b"});
+    j.setArr("f.0", {"f10", "f11"});
+    j.setVal("f.1.0", "f20");
+    cout << j.concatenate() << endl;
+}
+~~~~~~
 # Logger
 
 * 该服务器使用自己编写的简单(非常蠢的)Logger，若有需要可以更换成商业级Logger。
