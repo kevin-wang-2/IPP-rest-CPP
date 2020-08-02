@@ -140,5 +140,9 @@ public:
 
         return std::make_shared<JSONTemplateLoop>(JSONTemplateLoop(new_templ, new_child));
     };
+
+    void reset() override {
+        child.clear();
+    };
 };
 #endif //CPP_REST_JSONTEMPLATELOOP_H

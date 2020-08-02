@@ -32,6 +32,10 @@ public:
     std::shared_ptr<JSONTemplateNode> getCopy() const override {
         return std::make_shared<JSONTemplateVar>(JSONTemplateVar(_path, _val, assigned));
     };
+
+    void reset() override {
+        assigned = false;
+    };
 };
 
 #endif //CPP_REST_JSONTEMPLATEVAR_H

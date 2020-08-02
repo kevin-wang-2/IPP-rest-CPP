@@ -162,6 +162,10 @@ public:
 
         return std::make_shared<JSONTemplateRoot>(JSONTemplateRoot(new_child));
     };
+
+    void reset() override {
+        for(auto &item : child) item->reset();
+    };
 };
 
 #endif //CPP_REST_JSONTEMPLATEROOT_H

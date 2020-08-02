@@ -42,6 +42,8 @@ public:
     virtual const JSONTemplateNodeType getIdentity() = 0;
 
     virtual std::shared_ptr<JSONTemplateNode> getCopy() const = 0;
+
+    virtual void reset() = 0;
 };
 
 /**
@@ -59,6 +61,8 @@ public:
     std::shared_ptr<JSONTemplateNode> getCopy() const override {
         return std::make_shared<JSONTemplateString>(JSONTemplateString(s));
     };
+
+    void reset() override {};
 };
 
 /**
