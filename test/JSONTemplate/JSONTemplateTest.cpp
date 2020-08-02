@@ -22,6 +22,10 @@ int main() {
     j.setArr("c", {"a", "b"});
     j.setArr("f.0", {"f10", "f11"});
     j.setVal("f.1.0", "f20");
-    //j.reset();
+    j.reset();
+    j.setVal("num1", 1);
+    j.setVal("b1", "hello");
+    j.setArr("c", {"a"});
+    j.setArr("f.0", {"f10", "f11"});
     cout << j.concatenate() << endl;
 }
