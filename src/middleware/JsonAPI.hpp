@@ -24,5 +24,5 @@ void JsonAPI<method>::run(IHTTPRequest &req, IHTTPResponse &res, std::function<v
         else templateRoot.setArr(item.first, item.second.arr);
     }
     res.end(templateRoot.concatenate());
-
+    templateRoot.reset();
 }
