@@ -7,22 +7,6 @@
 #include "../utils/URL.h"
 #include "../template/JSONTemplateRoot.h"
 
-class HybridJSONType {
-public:
-    const union {
-        JSONAny val;
-        std::vector<JSONAny> arr;
-    };
-
-    const enum {
-        JSON_VAL,
-        JSON_ARR
-    } type;
-
-    HybridJSONType(JSONAny  _val) : val(std::move(_val)), type(JSON_VAL) {}
-    HybridJSONType(std::vector<JSONAny> _arr) : arr(std::move(_arr)), type(JSON_ARR) {}
-};
-
 template <HTTPMethod_t method>
 class JsonAPI : public RouterCallable {
     std::string path;

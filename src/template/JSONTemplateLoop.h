@@ -67,6 +67,40 @@ public:
         }
     }
 
+    void setRef(const std::string& path, const JSONAny& ref) override {
+        if(path.find('.') != std::string::npos) { // 存在.
+            std::string pre = path, post, pg, temp;
+            unsigned int index;
+            while(true) {
+                auto pos = pre.find_last_of('.');
+                post = pre.substr(pos + 1, std::string::npos);
+                pre = pre.substr(0, pos);
+
+                long subpos = pre.find_last_of('.');
+                if((unsigned long)subpos == std::string::npos) subpos = -1;
+                temp = pre.substr(subpos + 1, std::string::npos);
+
+                if(!isInt(temp)) {
+                    index = std::stoi(post);
+                    pg = pre.substr(0, subpos) + pg;
+                    break;
+                } else {
+                    pg = "." + post + pg;
+                }
+            }
+
+            while(index >= child.size()) {
+                std::vector<std::shared_ptr<JSONTemplateNode>> app;
+                for(auto &item : templ) {
+                    app.push_back(item->getCopy());
+                }
+                child.push_back(app);
+            }
+
+            for(auto &item : child[index]) item->setRef(pg, ref);
+        }
+    }
+
     void setArr(const std::string& path, std::vector<JSONAny> arr) override {
         // 1. 判断是否为更高层级
         if(path.find('.') != std::string::npos) {
