@@ -149,6 +149,10 @@ public:
         for(auto &item: child) item->setVal(path, val);
     }
 
+    void setRef(const std::string& path, const JSONAny& val) override {
+        for(auto &item: child) item->setRef(path, val);
+    }
+
     void setArr(const std::string& path, std::vector<JSONAny> arr) override {
         for(auto &item : child)
             if(item->getIdentity() == LOOP) item->setArr(path, arr);

@@ -25,7 +25,50 @@ public:
     JSONAny(const char* _val) : val(_val) {}
     JSONAny(const std::string& _val) : val(_val) {}
 
+    void set(int _val) { val = std::to_string(_val); }
+    void set(double _val) { val = std::to_string(_val); }
+    void set(bool _val) { val = (_val? "true" : "false"); }
+    void set(const NULL_t& _val) { val = "null"; }
+    void set(const char* _val) { val = _val; }
+    void set(const std::string& _val) { val = _val; }
+
+    template <typename T>
+    void operator=(T _val) { set(_val); }
+
     const std::string& get() const { return val; };
+
+    ~JSONAny() = default;
+};
+
+class HybridJSONType {
+public:
+    const union {
+        JSONAny val;
+        const JSONAny* ref;
+        std::vector<JSONAny> arr;
+    };
+
+    const enum {
+        JSON_VAL,
+        JSON_ARR,
+        JSON_REF
+    } type;
+
+    HybridJSONType(const JSONAny* _ref) : ref(_ref), type(JSON_REF) {}
+    HybridJSONType(JSONAny _val) : val(std::move(_val)), type(JSON_VAL) {}
+    HybridJSONType(std::vector<JSONAny> _arr) : arr(std::move(_arr)), type(JSON_ARR) {}
+
+    ~HybridJSONType() {
+        switch(type) {
+            case JSON_VAL:
+                val.~JSONAny();
+                break;
+            case JSON_ARR:
+                arr.clear();
+            default:
+                break;
+        }
+    }
 };
 
 /**
@@ -37,7 +80,22 @@ public:
 
     ///// 设置旗下节点以及自己的参数 /////
     virtual void setVal(const std::string& path, const JSONAny& val) {};
+    virtual void setRef(const std::string& path, const JSONAny& ref) {};
     virtual void setArr(const std::string& path, std::vector<JSONAny> arr) {};
+
+    virtual void set(const std::string& path, const HybridJSONType& var) {
+        switch(var.type) {
+            case HybridJSONType::JSON_VAL:
+                setVal(path, var.val);
+                break;
+            case HybridJSONType::JSON_ARR:
+                setArr(path, var.arr);
+                break;
+            case HybridJSONType::JSON_REF:
+                setRef(path, *var.ref);
+                break;
+        }
+    }
 
     virtual const JSONTemplateNodeType getIdentity() = 0;
 
